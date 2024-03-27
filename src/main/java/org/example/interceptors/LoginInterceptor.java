@@ -4,6 +4,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.example.pojo.Result;
 import org.example.utils.JwtUtil;
+import org.example.utils.ThreadLocalUtil;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -17,7 +19,9 @@ public class LoginInterceptor implements HandlerInterceptor {
 
         String token = request.getHeader("Authorization");
 
-        try{ Map<String,Object> claims = JwtUtil.parseToken(token);
+        try{
+            Map<String,Object> claims = JwtUtil.parseToken(token);
+            ThreadLocalUtil.set(claims);
             return true;
         }
         catch (Exception e){
@@ -26,6 +30,12 @@ public class LoginInterceptor implements HandlerInterceptor {
         }
     }
 
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, @Nullable Exception ex) throws Exception {
+
+        ThreadLocalUtil.remove();
+
+    }
 
 
 }
